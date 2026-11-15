@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { getReelMessages, sendReel } from '../lib/backend.js';
 import '../chat-picker.css';
 import '../inbox.css';
+import '../profile-matches.css';
 import Avatar, { avatarOptions, normalizeAvatar } from './Avatar.jsx';
 
 export function ProfilePage({ profile, onSave, busy, reels = [], profileReels = [], onRemove, onScroll }) {
@@ -10,34 +11,38 @@ export function ProfilePage({ profile, onSave, busy, reels = [], profileReels = 
   const [bio, setBio] = useState(profile?.bio || '');
   const [interests, setInterests] = useState(profile?.interests?.join(', ') || '');
   const [avatar, setAvatar] = useState(() => normalizeAvatar(profile?.avatar));
-  return <section className="backend-page profile-page">
-    
-    <h1>{profile ? 'ur profile' : 'make ur profile'}</h1>
-    <p className="backend-muted">tell us a lil abt urself</p>
-    <form onSubmit={e => { e.preventDefault(); onSave({ name, age, bio, avatar, interests: interests.split(',').map(x => x.trim()).filter(Boolean).slice(0,12) }); }}>
-      <div className="backend-avatars" aria-label="pick an avatar">
-        {avatarOptions.map((a, i) => <button type="button" key={a} aria-label={`profile picture ${i + 1}`} aria-pressed={a === avatar} className={a === avatar ? 'chosen' : ''} onClick={() => setAvatar(a)}><Avatar value={a} /></button>)}
-      </div>
-      <label>display name<input required maxLength={60} value={name} onChange={e => setName(e.target.value)} placeholder="ur name" /></label>
-      <label>age <small>18 and up</small><input required type="number" min={18} max={99} value={age} onChange={e => setAge(e.target.value)} placeholder="ur age" /></label>
-      <label>bio<textarea maxLength={300} value={bio} onChange={e => setBio(e.target.value)} placeholder="tell us abt urself" /></label>
-      <label>interests (separate with commas)<input maxLength={250} value={interests} onChange={e => setInterests(e.target.value)} placeholder="cats, gaming, memes" /></label>
-      <button className="backend-primary" disabled={busy || !name.trim()} type="submit">{busy ? 'saving…' : profile ? 'save profile' : 'start scrolling →'}</button>
-    </form>
-    {profile && <section className="backend-card profile-reels-section"><div className="profile-reels-heading"><div><h2>ur reels</h2></div><span className="profile-reel-count">{profileReels.length}</span></div><p className="backend-muted">reels that are literally u</p><ProfileReels entries={profileReels} reels={reels} onRemove={onRemove} busy={busy}/>{!profileReels.length && <button type="button" className="backend-secondary" onClick={onScroll}>find reels to add →</button>}</section>}
+  const tags = interests.split(',').map(x => x.trim()).filter(Boolean).slice(0,12);
+  const pinned = profileReels.filter(entry => reels.some(r => String(r.id) === String(entry.reel_id)));
+  return <section className={`backend-page profile-page rl-profile-page${profile ? '' : ' rl-new-profile'}`}>
+    <header className="rl-page-title"><h1>{profile ? 'ur profile' : 'make ur profile'}</h1></header>
+    <div className="rl-profile-layout">
+      <form className="rl-profile-form" onSubmit={e => { e.preventDefault(); onSave({ name, age, bio, avatar, interests: tags }); }}>
+        <div className="rl-profile-identity"><Avatar value={avatar} className="rl-profile-large-avatar"/><div><h2>{name.trim() || 'ur name'}{age ? `, ${age}` : ''}</h2><p>profile picture</p></div></div>
+        <div className="backend-avatars" aria-label="pick an avatar">
+          {avatarOptions.map((a, i) => <button type="button" key={a} aria-label={`profile picture ${i + 1}`} aria-pressed={a === avatar} className={a === avatar ? 'chosen' : ''} onClick={() => setAvatar(a)}><Avatar value={a} /></button>)}
+        </div>
+        <div className="rl-profile-fields">
+          <label>display name<input required maxLength={60} value={name} onChange={e => setName(e.target.value)} placeholder="ur name" /></label>
+          <label>age<input required type="number" min={18} max={99} value={age} onChange={e => setAge(e.target.value)} placeholder="ur age" /></label>
+          <label className="rl-profile-wide">bio<textarea maxLength={300} value={bio} onChange={e => setBio(e.target.value)} placeholder="a lil abt urself" /></label>
+          <label className="rl-profile-wide">interests<input maxLength={250} value={interests} onChange={e => setInterests(e.target.value)} placeholder="cats, gaming, memes" /><small>separate with commas</small></label>
+        </div>
+        {!!tags.length && <div className="backend-tags rl-profile-tags">{tags.map((t,i)=><span key={i}>{t}</span>)}</div>}
+        <button className="backend-primary rl-profile-save" disabled={busy || !name.trim()} type="submit">{busy ? 'saving…' : profile ? 'save profile' : 'start scrolling →'}</button>
+      </form>
+      {profile && <section className="backend-card rl-profile-gallery"><header><div><h2>ur reels</h2><p>reels that are literally u</p></div><span>{pinned.length}</span></header><ProfileReels entries={pinned} reels={reels} onRemove={onRemove} busy={busy}/><button type="button" className="backend-secondary rl-find-reels" onClick={onScroll}>find reels to add →</button></section>}
+    </div>
   </section>;
 }
 
 function ProfileReels({entries, reels, onRemove, busy}) {
-  if (!entries.length) return <p className="backend-muted profile-reels-empty">no reels yet</p>;
-  return <div className="profile-reels-grid">{entries.map(entry => {
-    const r = reels.find(x => String(x.id) === entry.reel_id);
-    return <article className="profile-reel-tile" key={entry.reel_id}>
-      <div className="profile-reel-media">{r?.video ? <video src={r.video} controls playsInline preload="metadata"/> : <span>{r?.emoji || '🎬'}</span>}</div>
-      <p>{r?.caption || 'reel unavailable'}</p>
-      {onRemove && <button type="button" className="backend-secondary profile-reel-remove" disabled={busy} onClick={() => onRemove(entry.reel_id)}>remove</button>}
-    </article>;
-  })}</div>;
+  const available = entries.map(entry => ({entry, reel: reels.find(x => String(x.id) === String(entry.reel_id))})).filter(x => x.reel);
+  if (!available.length) return <p className="backend-muted profile-reels-empty">no reels yet</p>;
+  return <div className="rl-gallery-grid">{available.map(({entry,reel:r}) => <article className="rl-gallery-tile" key={entry.reel_id}>
+    <div className="rl-reel-media">{r.video ? <video src={`${r.video}#t=0.1`} controls playsInline preload="metadata" aria-label={r.handle || 'reel'}/> : <span>{r.emoji || '🎬'}</span>}</div>
+    <p title={r.caption}>{r.handle || r.caption}</p>
+    {onRemove && <button type="button" className="rl-remove-reel" disabled={busy} onClick={() => onRemove(entry.reel_id)}>remove</button>}
+  </article>)}</div>;
 }
 
 function useClock() {
@@ -64,22 +69,17 @@ function MatchActions({target,status,incoming,rouletteStates,onSpin,onDismiss,bu
 }
 export function MatchesPage({matches,rouletteStates,onSpin,onDismiss,onScroll,busy,reels,profileReels = []}) {
   const now=useClock();
-  return <section className="backend-page rm-matches-page">
+  return <section className="backend-page rm-matches-page rl-matches-page">
     <header className="rm-matches-header"><h1>matches</h1><span>{matches.length} {matches.length === 1 ? 'match' : 'matches'}</span></header>
     {!matches.length ? <div className="backend-card rm-empty-matches"><h2>no matches yet</h2><p>like more reels to find ur matches</p><button className="backend-primary" onClick={onScroll}>browse reels</button></div> :
-      <div className="rm-match-grid">{matches.map(m => {
-        const shared = m.shared_reels || [];
-        const pinned = profileReels.filter(r => r.user_id === m.id);
-        return <article className="backend-card rm-match-card" key={m.id}>
-          <div className="rm-match-identity"><Avatar value={m.avatar} className="backend-avatar" /><div className="rm-match-name"><h2>{m.name}, {m.age}</h2>{m.is_demo && <small className="backend-demo">fictional</small>}</div><div className="rm-match-score"><strong>{m.score}%</strong><span>match</span></div></div>
-          <div className="rm-match-meter" role="meter" aria-label="compatibility" aria-valuemin={0} aria-valuemax={100} aria-valuenow={m.score}><span style={{width:`${Math.max(0,Math.min(100,m.score))}%`}} /></div>
-          {m.bio && <p className="rm-match-bio">{m.bio}</p>}
-          {!!m.interests?.length && <div className="backend-tags rm-match-tags">{m.interests.map((i,n) => <span key={n}>{i}</span>)}</div>}
-          <section className="rm-match-common"><h3>{shared.length} {shared.length === 1 ? 'reel' : 'reels'} in common</h3><div className="rm-common-strip">{shared.map(id => {
-            const r = reels.find(x => String(x.id) === String(id));
-            return <div className="rm-common-reel" key={id} title={r?.caption || 'reel'}>{r?.video ? <video src={r.video} controls playsInline preload="metadata"/> : <div className="rm-common-placeholder">{r?.emoji || 'reel'}</div>}<span>{r?.caption || 'reel unavailable'}</span></div>;
-          })}</div></section>
-          {!!pinned.length && <section className="match-profile-reels"><h3>their reels</h3><ProfileReels entries={pinned} reels={reels}/></section>}
+      <div className="rl-match-grid">{matches.map(m => {
+        const shared = (m.shared_reels || []).filter(id=>reels.some(r=>String(r.id)===String(id))).map(reel_id=>({reel_id}));
+        const pinned = profileReels.filter(r => r.user_id === m.id && reels.some(v=>String(v.id)===String(r.reel_id)));
+        return <article className="backend-card rl-match-card" key={m.id}>
+          <header className="rl-match-identity"><Avatar value={m.avatar} className="rl-match-avatar"/><div className="rl-match-name"><h2>{m.name}</h2><p>{m.age}{m.is_demo ? ' · automated' : ''}</p></div><div className="rl-match-score"><strong>{m.score}%</strong><span>match</span></div></header>
+          <div className="rl-match-meter" role="meter" aria-label="compatibility" aria-valuemin={0} aria-valuemax={100} aria-valuenow={m.score}><span style={{width:`${Math.max(0,Math.min(100,m.score))}%`}} /></div>
+          <div className="rl-match-about">{m.bio && <p>{m.bio}</p>}{!!m.interests?.length && <div className="backend-tags">{m.interests.map((i,n) => <span key={n}>{i}</span>)}</div>}</div>
+          <div className="rl-match-reels"><section><h3>in common <span>{shared.length}</span></h3><ProfileReels entries={shared} reels={reels}/></section><section><h3>their reels <span>{pinned.length}</span></h3><ProfileReels entries={pinned} reels={reels}/></section></div>
           <div className="rm-match-footer"><MatchActions plainLabels target={m} status={m.connection_status} rouletteStates={rouletteStates} onSpin={onSpin} onDismiss={onDismiss} busy={busy} now={now}/></div>
         </article>;
       })}</div>}
@@ -139,11 +139,11 @@ function ReelChat({connection,profile,reels,draftReel,clearDraft,actions,onBack}
     <header className="rl-chat-header">
       <button type="button" className="rl-chat-back" onClick={onBack} aria-label="back to messages">←</button>
       <Avatar value={connection.avatar} className="rl-chat-avatar" />
-      <div className="rl-chat-identity"><h2>{connection.name}</h2><small>{connection.is_demo ? 'fictional · auto replies' : 'connected'}</small></div>
+      <div className="rl-chat-identity"><h2>{connection.name}</h2><small>{connection.is_demo ? 'automated' : 'connected'}</small></div>
       <div className="rl-chat-actions">{actions}</div>
     </header>
     <div className="chat-history" ref={historyRef} onScroll={e=>{const el=e.currentTarget;stickToBottom.current=el.scrollHeight-el.scrollTop-el.clientHeight<100;}} aria-live="polite">
-      {!loaded ? <p className="rl-chat-empty">loading reels…</p> : !messages.length ? <div className="rl-chat-empty"><Avatar value={connection.avatar} className="rl-empty-avatar" /><strong>{connection.name}</strong><p>send them a reel lol</p></div> : messages.map(m=><div className={`chat-bubble ${m.sender_id===profile.id?'mine':'theirs'}`} key={m.id}><MiniReel reel={reels.find(r=>String(r.id)===m.reel_id)}/><small>{new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>)}
+      {!loaded ? <p className="rl-chat-empty">loading reels…</p> : !messages.length ? <div className="rl-chat-empty"><Avatar value={connection.avatar} className="rl-empty-avatar" /><strong>{connection.name}</strong><p>send them a reel lol</p></div> : messages.map(m=><div className={`chat-bubble ${m.sender_id===profile.id?'mine':'theirs'}`} key={m.id}><MiniReel reel={reels.find(r=>String(r.id)===String(m.reel_id))}/><small>{new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>)}
     </div>
     <div className="rl-composer">
       <div className="rl-chat-notice"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><s>type a message...</s><span>no texting, reels only</span></div>
@@ -169,7 +169,7 @@ export function ConnectionsPage({connections,rouletteStates,onSpin,onDismiss,onR
         <div className="rl-inbox-scroll">
           {!accepted.length && <p className="rl-inbox-empty">no chats yet</p>}
           {accepted.map(c=><button type="button" className={`rl-inbox-person${connection?.other_id===c.other_id?' is-active':''}`} key={c.id} onClick={()=>setSelected(c.other_id)} aria-pressed={connection?.other_id===c.other_id}>
-            <Avatar value={c.avatar} className="rl-inbox-avatar"/><span className="rl-person-copy"><strong>{c.name}</strong><small>{c.is_demo?'fictional':'connected'}</small></span><span className="rl-person-arrow" aria-hidden="true">›</span>
+            <Avatar value={c.avatar} className="rl-inbox-avatar"/><span className="rl-person-copy"><strong>{c.name}</strong><small>{c.is_demo?'automated':'connected'}</small></span><span className="rl-person-arrow" aria-hidden="true">›</span>
           </button>)}
           {!!requests.length && <section className="rl-inbox-requests"><h3>requests</h3>{requests.map(c=><article className="rl-request" key={c.id}><div className="rl-request-person"><Avatar value={c.avatar} className="rl-inbox-avatar"/><div className="rl-person-copy"><strong>{c.name}</strong><small>{c.incoming?'incoming request':'request sent'}</small></div></div><MatchActions target={{...c,id:c.other_id}} status={c.status} incoming={c.incoming} rouletteStates={rouletteStates} onSpin={onSpin} onDismiss={onDismiss} busy={busy} now={now}/></article>)}</section>}
         </div>
