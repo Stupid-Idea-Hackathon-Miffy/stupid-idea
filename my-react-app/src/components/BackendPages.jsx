@@ -1,20 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
 import { getReelMessages, sendReel } from '../lib/backend.js';
 import '../chat-picker.css';
+import Avatar, { avatarOptions, normalizeAvatar } from './Avatar.jsx';
 
 export function ProfilePage({ profile, onSave, busy, reels = [], profileReels = [], onRemove, onScroll }) {
   const [name, setName] = useState(profile?.name || '');
   const [age, setAge] = useState(profile?.age || '');
   const [bio, setBio] = useState(profile?.bio || '');
   const [interests, setInterests] = useState(profile?.interests?.join(', ') || '');
-  const [avatar, setAvatar] = useState(profile?.avatar || '🫠');
+  const [avatar, setAvatar] = useState(() => normalizeAvatar(profile?.avatar));
   return <section className="backend-page profile-page">
     
     <h1>{profile ? 'ur profile' : 'make ur profile'}</h1>
     <p className="backend-muted">18+ demo • use fake details pls</p>
     <form onSubmit={e => { e.preventDefault(); onSave({ name, age, bio, avatar, interests: interests.split(',').map(x => x.trim()).filter(Boolean).slice(0,12) }); }}>
       <div className="backend-avatars" aria-label="pick an avatar">
-        {['🫠','🐱','🐶','🦝','🐸','🦜','👽','🤡'].map(a => <button type="button" key={a} aria-label={`avatar ${a}`} aria-pressed={a === avatar} className={a === avatar ? 'chosen' : ''} onClick={() => setAvatar(a)}>{a}</button>)}
+        {avatarOptions.map((a, i) => <button type="button" key={a} aria-label={`profile picture ${i + 1}`} aria-pressed={a === avatar} className={a === avatar ? 'chosen' : ''} onClick={() => setAvatar(a)}><Avatar value={a} /></button>)}
       </div>
       <label>display name<input required maxLength={60} value={name} onChange={e => setName(e.target.value)} placeholder="ur name" /></label>
       <label>age<input required type="number" min={18} max={99} value={age} onChange={e => setAge(e.target.value)} placeholder="18+" /></label>
@@ -69,7 +70,7 @@ export function MatchesPage({matches,rouletteStates,onSpin,onDismiss,onScroll,bu
         const shared = m.shared_reels || [];
         const pinned = profileReels.filter(r => r.user_id === m.id);
         return <article className="backend-card rm-match-card" key={m.id}>
-          <div className="rm-match-identity"><span className="backend-avatar">{m.avatar}</span><div className="rm-match-name"><h2>{m.name}, {m.age}</h2>{m.is_demo && <small className="backend-demo">demo profile</small>}</div><div className="rm-match-score"><strong>{m.score}%</strong><span>match</span></div></div>
+          <div className="rm-match-identity"><Avatar value={m.avatar} className="backend-avatar" /><div className="rm-match-name"><h2>{m.name}, {m.age}</h2>{m.is_demo && <small className="backend-demo">demo profile</small>}</div><div className="rm-match-score"><strong>{m.score}%</strong><span>match</span></div></div>
           <div className="rm-match-meter" role="meter" aria-label="compatibility" aria-valuemin={0} aria-valuemax={100} aria-valuenow={m.score}><span style={{width:`${Math.max(0,Math.min(100,m.score))}%`}} /></div>
           {m.bio && <p className="rm-match-bio">{m.bio}</p>}
           {!!m.interests?.length && <div className="backend-tags rm-match-tags">{m.interests.map((i,n) => <span key={n}>{i}</span>)}</div>}
@@ -128,7 +129,7 @@ function ReelChat({connection,profile,reels,draftReel,clearDraft}) {
     catch(e){if(active.current)setError(e.message);}finally{sendLock.current=false;if(active.current)setSending(false);}
   }
   return <div className="backend-card reel-chat">
-    <h2>{connection.avatar} {connection.name}{connection.is_demo && <small className="backend-demo">demo profile · auto replies</small>}</h2>
+    <div className="avatar-chat-heading"><Avatar value={connection.avatar} className="backend-avatar" /><div><h2>{connection.name}</h2>{connection.is_demo && <small className="backend-demo">demo profile · auto replies</small>}</div></div>
     <div className="chat-history" aria-live="polite">{!loaded ? <p className="backend-muted">loading reels…</p>:!messages.length?<p className="backend-muted">send them a reel lol</p>:messages.map(m=><div className={`chat-bubble ${m.sender_id===profile.id?'mine':'theirs'}`} key={m.id}><MiniReel reel={reels.find(r=>String(r.id)===m.reel_id)}/><small>{new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>)}</div>
     <div className="chat-disabled">🔒 <s>type a message...</s><small>no texting, reels only</small></div>
     {error && <p className="backend-error" role="alert">{error}</p>}
@@ -143,7 +144,7 @@ export function ConnectionsPage({connections,rouletteStates,onSpin,onDismiss,onR
     {connection ? <><button className="backend-secondary" onClick={()=>setSelected(null)}>← back</button><ReelChat key={connection.other_id} connection={connection} profile={profile} reels={reels} draftReel={draftReel} clearDraft={clearDraft}/><MatchActions target={{...connection,id:connection.other_id}} status="accepted" rouletteStates={rouletteStates} onSpin={onSpin} onDismiss={onDismiss} busy={busy} now={now}/></> : <>
       <button className="backend-secondary" onClick={onRefresh} disabled={busy}>refresh</button>
       {!connections.length && <div className="backend-card">no one here yet, go spin</div>}
-      {connections.map(c=><article className="backend-card" key={c.id}><div className="backend-request"><span className="backend-avatar">{c.avatar}</span><div><h2>{c.name}{c.is_demo && <small className="backend-demo">demo profile</small>}</h2><p className="backend-muted">{c.status==='pending'?(c.incoming?'incoming request':'request sent'):c.status}</p></div></div><MatchActions target={{...c,id:c.other_id}} status={c.status} incoming={c.incoming} rouletteStates={rouletteStates} onSpin={onSpin} onDismiss={onDismiss} busy={busy} now={now} onOpen={()=>setSelected(c.other_id)}/></article>)}
+      {connections.map(c=><article className="backend-card" key={c.id}><div className="backend-request"><Avatar value={c.avatar} className="backend-avatar" /><div><h2>{c.name}{c.is_demo && <small className="backend-demo">demo profile</small>}</h2><p className="backend-muted">{c.status==='pending'?(c.incoming?'incoming request':'request sent'):c.status}</p></div></div><MatchActions target={{...c,id:c.other_id}} status={c.status} incoming={c.incoming} rouletteStates={rouletteStates} onSpin={onSpin} onDismiss={onDismiss} busy={busy} now={now} onOpen={()=>setSelected(c.other_id)}/></article>)}
     </>}
   </section>;
 }

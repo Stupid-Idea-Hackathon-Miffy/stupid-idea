@@ -22,3 +22,112 @@
 .reel-chat .rm-picker-send { display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: 0 0 auto; min-height: 40px; padding: 9px 14px; border-radius: 8px; text-transform: none; }
 @media (max-width: 480px) { .rm-picker-tile { flex-basis: 89px; } .rm-picker-strip { gap: 7px; } .reel-chat .chat-history { min-height: 110px; } }
 @media (prefers-reduced-motion: reduce) { .rm-picker-tile { transition: none; } }
+
+/* ReelMate readability pass — keep the gingham/pastel palette, improve text contrast.
+   These selectors intentionally outrank the existing theme (which loads last). */
+html:root {
+  --ink: #412331;
+  --ink-soft: #694754;
+  --blue-deep: #5f90ad;
+  --pink-deep: #a82f59;
+  --card: #fffaf6;
+  --muted: #694754;
+  --text: #412331;
+}
+html:root {
+  background-image: repeating-linear-gradient(90deg, rgba(var(--pink-rgb), .34) 0 96px, transparent 96px 144px),
+    repeating-linear-gradient(0deg, rgba(var(--pink-rgb), .34) 0 96px, transparent 96px 144px);
+  background-color: var(--cream);
+}
+html body { color: var(--ink); }
+html body .backend-card, html body .backend-stage .backend-vibe { background: var(--card); }
+html body .backend-page h1 { color: var(--blue,#7ba9c4); }
+html body .brand { color: var(--blue,#7ba9c4); }
+html body .backend-page .backend-muted, html body .backend-demo,
+html body .rm-common-reel > span, html body .rm-picker-selection,
+html body .rm-picker-heading > span, html body .chat-bubble small,
+html body .rm-wheel-header p, html body .rm-wheel-result p { color: var(--ink-soft); }
+html body .backend-page h2, html body .backend-page label, html body .rm-match-name h2 { color: var(--ink); }
+html body .backend-page .backend-muted { font-weight: 500; }
+html body .backend-page label { font-size: 14px; font-weight: 700; }
+html body .backend-page .profile-reels-section { background: var(--card); }
+/* Put profile fields on one solid surface instead of directly on gingham. */
+html body .backend-page.profile-page > form {
+  background: var(--card); padding: clamp(16px, 3vw, 26px); border: 1px solid #d8a7b9;
+  border-radius: 18px; margin-top: 0; gap: 18px; box-shadow: 0 5px 20px #4a243412;
+}
+html body .profile-page > .backend-muted { background: var(--card); border: 1px solid #dfbccb; border-radius: 9px; padding: 9px 12px; width: fit-content; }
+html body .backend-page input, html body .backend-page textarea, html body .reel-chat select {
+  color: #412331; background: #fff; border-color: #b77b94; font-weight: 500;
+  font-size: 15px; line-height: 1.45; caret-color: #412331;
+}
+/* Empty guidance must look different from a saved or typed value. */
+html body input::placeholder, html body textarea::placeholder {
+  color: #766971; opacity: 1; font-style: italic; font-weight: 400;
+}
+html body .backend-page input:focus, html body .backend-page textarea:focus, html body .reel-chat select:focus {
+  border-color: var(--blue,#7ba9c4); box-shadow: 0 0 0 3px #5f90ad30; outline: none;
+}
+/* Restore the original pastel blue; use darker text rather than darkening the button. */
+html body .backend-primary { background: var(--blue,#7ba9c4); color: #412331; }
+html body .backend-secondary { background: #fffdf9; color: var(--blue-deep,#5f90ad); box-shadow: inset 0 0 0 2px #7ba9c4; }
+html body .backend-primary:not(:disabled):hover { background: #8bb7cf; filter: none; }
+html body .backend-secondary:not(:disabled):hover { background: #e9f1f6; filter: none; }
+html body .backend-primary:disabled, html body .backend-secondary:disabled,
+html body .rm-match-footer .rm-is-connected > .backend-secondary:disabled {
+  color: #6b535f; background: #e9dce4; opacity: 1; box-shadow: inset 0 0 0 1px #bca5b2;
+  cursor: not-allowed;
+}
+html body button:focus-visible, html body summary:focus-visible { outline: 3px solid #496a81; outline-offset: 3px; }
+html body .backend-page .backend-kicker, html body .backend-score,
+html body .rm-match-score, html body .backend-vibe-link,
+html body .roulette-dialog h1, html body .roulette-overlay .rm-wheel-result h2 { color: #a82f59; }
+html body .roulette-overlay .rm-wheel-result h2.rm-won { color: #436422; }
+html body .roulette-dialog h2 { color: var(--blue,#7ba9c4); }
+html body .backend-stage .backend-vibe h3 { color: var(--blue,#7ba9c4); }
+html body .match-score strong { color: #a82f59; }
+html body .match-score span { color: #694754; }
+html body .pager button { background: var(--blue,#7ba9c4); color: #412331; }
+html body .pager button svg { stroke: currentColor; }
+html body .pager button:hover { background: #8bb7cf; }
+html body .rm-picker-check { background: var(--blue,#7ba9c4); color: #412331; }
+html body .reel-chat .chat-disabled { background: #f9edf2; color: #694754; border-color: #c693a9; }
+html body .reel-chat .chat-disabled small { color: #a82f59; }
+
+html body .rm-stop-contact, html body .quiet-block { color: #694754; }
+html body .decor-tagline { color: #694754; opacity: 1; }
+/* Give unboxed text on patterned pages a quiet surface without removing the pattern. */
+html body .backend-page > p.backend-muted { background: var(--card); border-radius: 9px; padding: 9px 12px; width: fit-content; }
+html body .web-reels-stage .rail button { color: #412331; }
+html body .web-reels-stage .rail button > span { background: #fffaf6; padding: 3px 5px; border-radius: 5px; }
+html body .web-reels-stage .reel-meta { color: #fff; }
+@media (min-width: 1320px) {
+  html body .backend-app .web-reels-stage .reel-meta { color: var(--ink); background: var(--card); }
+}
+@media (max-width: 480px) {
+  html body .backend-page.profile-page > form { padding: 15px; gap: 15px; }
+}
+
+/* Original ReelMate blue + consistent match controls. */
+html:root { --blue: #7ba9c4; --blue-deep: #5f90ad; }
+html body .backend-page h1, html body .brand,
+html body .backend-stage .backend-vibe h3, html body .roulette-dialog h2 {
+  color: var(--blue);
+}
+html body .rm-match-footer .roulette-actions > .rm-connected-pill {
+  width: 100%; min-height: 42px; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+  padding: 9px 7px; gap: 4px; margin: 0;
+  border: 0; border-radius: 8px; background: var(--blue);
+  color: var(--ink); font-family: var(--display, system-ui);
+  font-stretch: 125%; font-weight: 900; font-size: 11px;
+  line-height: 1.2; letter-spacing: 0; text-transform: none;
+  text-align: center; box-shadow: none; cursor: default;
+}
+html body .rm-match-footer .rm-connected-pill::before {
+  font-family: inherit; font-size: inherit; font-weight: inherit;
+  line-height: inherit;
+}
+html body .rm-match-footer .roulette-actions {
+  grid-template-columns: repeat(2,minmax(0,1fr)); align-items: stretch;
+}
