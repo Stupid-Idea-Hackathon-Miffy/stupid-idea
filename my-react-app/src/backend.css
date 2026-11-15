@@ -1,0 +1,58 @@
+.backend-app { min-height: 0; }
+.backend-page-wrap { overflow: auto; min-width: 0; min-height: 0; }
+.backend-page { width: min(880px, 100%); margin: 0 auto; padding: 48px 30px 90px; display: grid; gap: 16px; }
+.backend-page h1 { font-size: clamp(28px,5vw,44px); letter-spacing: -1.5px; }
+.backend-page h2 { font-size: 19px; }
+.backend-page p { line-height: 1.5; }
+.backend-kicker { color: #ff5266; font-size: 12px; letter-spacing: 2px; font-weight: 800; }
+.backend-muted { color: #a8a8a8; font-size: 14px; }
+.backend-onboarding { height: 100dvh; overflow: auto; display: grid; align-content: center; }
+.backend-onboarding .backend-page, .profile-page { max-width: 550px; }
+.backend-page form { display: grid; gap: 15px; margin-top: 8px; }
+.backend-page label { display: grid; gap: 7px; font-size: 13px; font-weight: 600; }
+.backend-page input, .backend-page textarea { width: 100%; padding: 13px; border: 1px solid #343438; border-radius: 10px; color: #f5f5f5; background: #18181b; font: inherit; }
+.backend-page textarea { min-height: 90px; resize: vertical; }
+.backend-avatars { display: flex; flex-wrap: wrap; gap: 8px; }
+.backend-avatars button { width: 46px; height: 46px; background: #222; border: 2px solid transparent; border-radius: 50%; font-size: 24px; }
+.backend-avatars .chosen { border-color: #ff5266; background: #3d2028; }
+.backend-primary, .backend-secondary { border-radius: 10px; padding: 12px 16px; font-weight: 700; text-align: center; }
+.backend-primary { background: #ff3040; color: white; }
+.backend-secondary { background: #29292d; color: white; justify-self: start; }
+.backend-primary:disabled, .backend-secondary:disabled { cursor: default; opacity: .55; }
+.backend-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 16px; }
+.backend-card { display: grid; gap: 12px; padding: 20px; background: #1b1b1e; border: 1px solid #2d2d32; border-radius: 16px; }
+.backend-match-head { display: flex; align-items: center; justify-content: space-between; }
+.backend-avatar { display: grid; place-items: center; background: #343039; border-radius: 50%; width: 64px; height: 64px; font-size: 34px; flex-shrink: 0; }
+.backend-score { font-size: 36px; color: #ff5266; }
+.backend-demo { font-size: 10px; color: #aaa; display: block; font-weight: 400; margin-top: 4px; }
+.backend-tags, .backend-shared { display: flex; flex-wrap: wrap; gap: 6px; }
+.backend-tags span { background: #333137; padding: 5px 9px; border-radius: 20px; font-size: 12px; }
+.backend-shared span { background: #302d33; padding: 7px; border-radius: 8px; }
+.backend-request { display: flex; align-items: center; flex-wrap: wrap; }
+.backend-request > div:nth-child(2) { flex: 1; }
+.backend-actions { display: flex; gap: 8px; }
+.backend-loading { height: 100dvh; display: grid; place-content: center; gap: 12px; text-align: center; padding: 20px; }
+.backend-error { padding: 12px; color: #ffb6b9; background: #481d23; border-radius: 10px; margin: 10px; }
+.backend-toast { position: fixed; right: 12px; top: 12px; z-index: 20; max-width: 350px; display: flex; gap: 10px; }
+.backend-toast button { font-size: 22px; }
+.backend-stage { isolation: isolate; }
+.backend-stage .backend-vibe { z-index: 0; right: calc(50% + 151px + 15px); width: 160px; padding: 15px; }
+.backend-stage .backend-vibe h3, .backend-stage .backend-vibe .match-photo { margin-left: 0; }
+.backend-stage .backend-vibe .match-photo { width: 100%; }
+.backend-vibe-avatar { position: absolute; inset: 14px 0 auto; font-size: 64px; text-align: center; }
+.backend-vibe-link { display: block; font-size: 12px; color: #ff929a; margin-top: 9px; }
+.backend-mobile-match { display: none; }
+@media(max-width:860px) {
+  .backend-app { grid-template-columns: 1fr; grid-template-rows: 1fr 65px; height: 100dvh; }
+  .backend-app .backend-sidebar { grid-row: 2; display: flex; flex-direction: row; align-items: center; justify-content: space-evenly; padding: 5px; border-right: 0; border-top: 1px solid #292929; }
+  .backend-sidebar .brand { display: none; }
+  .backend-sidebar .nav-item { justify-content: center; flex-direction: column; gap: 3px; font-size: 11px; padding: 5px; }
+  .backend-stage, .backend-page-wrap { grid-row: 1; grid-column: 1; }
+  .backend-app .backend-stage .backend-vibe { display: none; }
+  .backend-mobile-match { display: block; position: absolute; top: 8px; padding: 7px 14px; border-radius: 30px; background: #2a2128; z-index: 2; }
+  .backend-stage .reel { width: min(70vw,302px); height: min(68dvh,490px); }
+  .backend-stage .rail { left: auto; right: 8px; bottom: 65px; gap: 12px; }
+  .backend-stage .pager { right: 8px; top: auto; bottom: 6px; transform: none; flex-direction: row; gap: 5px; }
+  .backend-page { padding: 25px 16px 35px; }
+  .backend-onboarding { align-content: start; }
+}
