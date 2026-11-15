@@ -56,3 +56,35 @@
   .backend-page { padding: 25px 16px 35px; }
   .backend-onboarding { align-content: start; }
 }
+/* Relationship casino and reel-only messaging */
+.roulette-actions {display:grid;gap:8px;}
+.roulette-actions .backend-secondary {justify-self:stretch;}
+.quiet-block {font-size:12px;color:#b3b3b3;text-decoration:underline;padding:6px;}
+.roulette-overlay {position:fixed;inset:0;background:#000c;z-index:100;display:grid;place-items:center;padding:16px;overflow:auto;}
+.roulette-dialog {position:relative;background:#1b1b1e;border:1px solid #484044;border-radius:24px;padding:28px;max-width:420px;width:100%;display:grid;gap:14px;text-align:center;box-shadow:0 16px 80px #000c;}
+.roulette-dialog h1 {font-size:clamp(23px,5vw,32px);color:#ff5266;letter-spacing:-1px;}
+.roulette-dialog h2 {font-size:20px;margin:8px 0;color:#ff8893;}
+.roulette-dialog p {line-height:1.4;}
+.roulette-dialog .backend-secondary {justify-self:stretch;}
+.roulette-close {position:absolute;right:12px;top:8px;font-size:27px;color:#aaa;}
+.roulette-wheel-wrap {position:relative;width:min(230px,62vw);aspect-ratio:1;margin:14px auto;}
+.roulette-wheel {width:100%;height:100%;border-radius:50%;border:5px solid #e7ba66;box-shadow:0 0 0 5px #403022,0 0 30px #ff304033;transition:transform 2.35s cubic-bezier(.15,.7,.12,1);display:grid;place-items:center;}
+.roulette-pointer {position:absolute;z-index:1;top:-11px;left:calc(50% - 11px);width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:25px solid #ffe1a0;filter:drop-shadow(0 2px 2px #000);}
+.roulette-hub {display:grid;place-items:center;width:56px;height:56px;background:#242124;border:3px solid #e7ba66;border-radius:50%;font-size:26px;}
+.roulette-legend {display:flex;justify-content:center;gap:16px;font-size:13px;}
+.reel-chat {max-width:650px;width:100%;}
+.chat-history {max-height:50vh;min-height:160px;overflow:auto;display:flex;flex-direction:column;gap:14px;padding:10px 3px;}
+.chat-bubble {width:min(230px,80%);display:grid;gap:4px;}
+.chat-bubble.mine {align-self:flex-end;}
+.chat-bubble.theirs {align-self:flex-start;}
+.chat-bubble small {font-size:11px;color:#aaa;}
+.chat-bubble.mine small {text-align:right;}
+.chat-preview {border-radius:12px;overflow:hidden;background:#2b292e;border:1px solid #38343a;}
+.chat-bubble.mine .chat-preview {border-color:#b02a53;}
+.chat-preview video {width:100%;max-height:230px;display:block;object-fit:contain;background:#111;}
+.chat-emoji {font-size:64px;min-height:125px;display:grid;place-items:center;background:linear-gradient(140deg,#49424e,#242126);}
+.chat-preview p {font-size:12px;padding:10px;}
+.chat-disabled {padding:12px;border:1px solid #3b3438;border-radius:10px;background:#262326;color:#aaa;}
+.chat-disabled small {display:block;margin-top:6px;color:#ff929a;font-size:11px;}
+.reel-chat select {width:100%;padding:12px;background:#262328;border:1px solid #464148;color:#fff;border-radius:10px;font:inherit;}
+@media(max-height:650px){.roulette-dialog{padding:18px;gap:9px}.roulette-wheel-wrap{width:155px;margin:5px auto;}}

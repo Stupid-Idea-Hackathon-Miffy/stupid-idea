@@ -56,5 +56,9 @@ async function rpc(name, args = {}) {
 }
 export const getMatches = () => rpc('get_matches');
 export const getConnections = () => rpc('get_connections');
-export const sendConnection = targetId => rpc('send_connection', { target_id: targetId });
-export const respondConnection = (requestId, accept) => rpc('respond_connection', { request_id: requestId, accept_request: accept });
+export const getRouletteState = () => rpc('get_roulette_state');
+export const spinRejection = targetId => rpc('spin_rejection', {p_target: targetId});
+export const dismissMatch = targetId => rpc('dismiss_match', {p_target: targetId});
+export const sendReel = (targetId,reelId) => rpc('send_reel', {p_target:targetId,p_reel:String(reelId)});
+export const getReelMessages = targetId => rpc('get_reel_messages', {p_target:targetId});
+export const spinAdd = targetId => rpc('spin_add', {p_target:targetId});

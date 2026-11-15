@@ -2,7 +2,7 @@ import { Logo, ReelsIcon, HeartIcon, MessageIcon, ProfileIcon } from './Icons.js
 const items = [
   { key: 'reels', label: 'Reels', Icon: ReelsIcon },
   { key: 'matches', label: 'Matches', Icon: HeartIcon },
-  { key: 'messages', label: 'Connections', Icon: MessageIcon },
+  { key: 'messages', label: 'Messages', Icon: MessageIcon },
   { key: 'profile', label: 'Profile', Icon: ProfileIcon },
 ];
 export default function Sidebar({ active, onNavigate, matchCount = 0 }) {
