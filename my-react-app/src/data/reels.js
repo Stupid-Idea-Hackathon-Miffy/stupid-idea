@@ -9,9 +9,8 @@ export const reels = [
     { id: 6, emoji: "😬", avatar: "🗽", handle: "@freedom.maxxer", totalLikes: "109K", caption: "Top 10 WORST situations EVER\nPls follow for more!", audio: "freedom.maxxer · Original audio", likes: 109232, score: 87, video: "/freedom-maxxer.mp4", avatarImg: "/freedom-maxxer-avatar.jpg", instaStyle: true }, // DfjkEVzswoL
     { id: 7, emoji: "🤣", avatar: "😂", handle: "@zaideimaj", totalLikes: "204K", caption: "🤣😂😂😂", audio: "zaideimaj · Original audio", likes: 204548, score: 93, video: "/zaideimaj.mp4", avatarImg: "/zaideimaj-avatar.jpg", instaStyle: true }, // DcvBqhsu5qW
     { id: 8, emoji: "🏥", avatar: "💀", handle: "@wasted", totalLikes: "19K", caption: "🤣 A hospital is a specialized healthcare institution designed to diagnose, treat, and care for people who are ill, injured, or in need of ongoing medical attention.", audio: "wasted · Original audio", likes: 19276, score: 82, video: "/wasted.mp4", avatarImg: "/wasted-avatar.jpg", instaStyle: true }, // DfxXmVzBzy0
-    { id: 1, emoji: "🐕", avatar: "🐶", handle: "@thecutestmax", totalLikes: "1.2M", caption: "Absolute vibe #dogsofinsta #cutedogs", likes: 150000, score: 96, video: null },
-    { id: 2, emoji: "🐈", avatar: "🐱", handle: "@whiskerwave", totalLikes: "860K", caption: "Monday mood #catsofinsta #zoomies", likes: 92000, score: 88, video: null },
-    { id: 3, emoji: "🦜", avatar: "🦜", handle: "@birdbrained", totalLikes: "430K", caption: "He learned a new word #parrot", likes: 48000, score: 91, video: null },
+    { id: 9, emoji: "🐈‍⬛", avatar: "🌸", handle: "@wind_hush", totalLikes: "156K", caption: "Who would you drift under the blossoms with?\n\n#minecraft #minecraftcat #cherryblossom #cozyvibes #blender", audio: "wind_hush · Original audio", likes: 155756, score: 89, video: "/wind-hush.mp4", avatarImg: "/wind-hush-avatar.jpg", instaStyle: true }, // DfvCxVnRNaw
+    { id: 10, emoji: "🛋️", avatar: "🧘", handle: "@notreallywellness", totalLikes: "111K", caption: "Nothing is hard. I ran a 5K underneath my couch.", audio: "chynnajulie · alysa liu mindset", likes: 110688, score: 86, video: "/notreallywellness.mp4", avatarImg: "/notreallywellness-avatar.jpg", instaStyle: true }, // Ddr_aBro0f2
   ];
   
   export const formatCount = (n) =>

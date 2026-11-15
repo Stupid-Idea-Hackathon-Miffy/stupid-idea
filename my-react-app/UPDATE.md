@@ -18,7 +18,9 @@ Based on `Stupid-Idea-Hackathon-Miffy/stupid-idea`, main commit `1c911aab7789b2a
 - For two real users, use two browsers/incognito windows and fictional adult profiles, like the same reels, and try both add/accept spins.
 
 ## When adding new reels
-The source repo had IDs 1, 2, 3. Add your new IDs to `public.reel_catalog` in Supabase (and to `src/data/reels.js`). Example: `insert into public.reel_catalog(reel_id) values ('4'), ('5') on conflict do nothing;`. Reel-only messaging validates this catalog on the server. Seeded profile likes and automated replies still use the original IDs; keep their meanings stable. The existing three reels are emoji placeholders until actual video files/URLs are supplied.
+The feed is now the Instagram reels with IDs 4–10 (videos in `public/`); the original emoji placeholders 1, 2, 3 were removed. To switch an existing database over, run **supabase/instagram_reels.sql** and then **supabase/refresh_demo_users.sql** (so the demo profiles like the new reels).
+
+For any further reel, add it to `src/data/reels.js` with a new ID and register that ID in `public.reel_catalog`, e.g. `insert into public.reel_catalog(reel_id) values ('11') on conflict do nothing;`. Reel-only messaging validates this catalog on the server. Never reuse an ID: likes, profile pins and messages refer to reels by ID.
 
 ## Checks & limitations
 JS/JSX syntax was checked with TypeScript transpilation, but the full React app and SQL were not run against your live project. Polling updates conversations every 2.5 seconds while open; no realtime subscription is required. This is a fictional 18+ hackathon prototype, not a production dating platform. GitHub denied permission to create a branch, so no changes have been pushed.
