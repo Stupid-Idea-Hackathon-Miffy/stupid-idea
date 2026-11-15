@@ -1,0 +1,23 @@
+.rl-checkout {display:grid;gap:14px;text-align:left;min-width:0;color:var(--ink,#4a2434);}
+.rl-checkout h1 {text-align:center;margin:0 0 2px;}
+.rl-checkout-top {display:flex;align-items:center;justify-content:space-between;padding-right:28px;font-size:12px;color:var(--ink-soft,#694754);}
+.rl-checkout-top button {font-weight:700;text-decoration:underline;}
+.rl-checkout-top span {padding:4px 8px;border:1px solid #d8b8c7;border-radius:8px;background:#fffaf6;}
+.rl-checkout-order,.rl-checkout-total {display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.rl-checkout-order {border:1px solid #dfbccb;border-radius:12px;background:#fffaf6;padding:13px;}
+.rl-checkout-order small {display:block;margin-top:4px;color:var(--ink-soft,#694754);font-size:12px;}
+.rl-checkout-note {font-size:12px;background:#eefcb4;padding:9px 11px;border-radius:8px;color:var(--ink,#412331);}
+.rl-checkout-fields {display:grid;gap:12px;}
+.rl-checkout-fields label {display:grid;gap:5px;min-width:0;font-size:12px;font-weight:700;}
+.rl-checkout-fields input {width:100%;min-width:0;padding:11px 10px;box-sizing:border-box;background:#fffdf9;border:1px solid #cda3b6;border-radius:8px;font:inherit;font-size:14px;font-weight:500;color:var(--ink,#412331);cursor:text;}
+.rl-checkout-fields input::placeholder {color:#766971;opacity:1;font-style:italic;}
+.rl-checkout-pair {display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.rl-checkout-total {border-top:1px solid #dfbccb;padding-top:12px;font-size:14px;}
+.rl-checkout > .backend-primary,.rl-checkout > .backend-secondary {width:100%;justify-self:stretch;text-transform:none;}
+.rl-checkout > small {text-align:center;color:var(--ink-soft,#694754);font-size:11px;}
+.rl-spin-price {margin-top:6px;font-weight:700;}
+html body .rl-checkout .backend-primary {background:#7ba9c4;color:#412331;}
+html body .rl-checkout .backend-primary:disabled {background:#e9dce4;color:#6b535f;cursor:not-allowed;}
+
+.rl-checkout-fields input:focus {outline:2px solid #7ba9c4;outline-offset:2px;}
+.rl-checkout-error {color:#a82f59;font-size:12px;text-align:left;}
