@@ -6,16 +6,17 @@ import ActionRail from './components/ActionRail.jsx';
 import VibeMatch from './components/VibeMatch.jsx';
 import Pager from './components/Pager.jsx';
 import { ProfilePage, MatchesPage, ConnectionsPage } from './components/BackendPages.jsx';
-import { getProfile, saveProfile, getLikes, setLike, getMatches, getConnections, getRouletteState, spinAdd, spinRejection, dismissMatch } from './lib/backend.js';
+import { getProfile, saveProfile, getLikes, setLike, getMatches, getConnections, getRouletteState, spinAdd, spinRejection, dismissMatch, getProfileReels, setProfileReel } from './lib/backend.js';
 import { RouletteModal } from './components/RouletteModal.jsx';
 import './backend.css';
+import './reel-layout.css';
 
 export default function App() {
   const [index, setIndex] = useState(0);
   const [page, setPage] = useState('reels');
   const [profile, setProfile] = useState(null);
   const [likedIds, setLikedIds] = useState([]);
-  const [savedIds, setSavedIds] = useState([]);
+  const [profileReels, setProfileReels] = useState([]);
   const [matches, setMatches] = useState([]);
   const [connections, setConnections] = useState([]);
   const [rouletteStates, setRouletteStates] = useState([]);
@@ -27,7 +28,8 @@ export default function App() {
   const lock = useRef(false);
 
   const refresh = useCallback(async () => {
-    const [found, requests, states] = await Promise.all([getMatches(), getConnections(), getRouletteState()]);
+    const [found, requests, states, pins] = await Promise.all([getMatches(), getConnections(), getRouletteState(), getProfileReels()]);
+    setProfileReels(pins || []);
     setRouletteStates(states || []);
     setMatches(found || []); setConnections(requests || []);
   }, []);
@@ -39,9 +41,9 @@ export default function App() {
         const p = await getProfile();
         if (cancelled) return;
         if (p) {
-          const [likes, found, requests, states] = await Promise.all([getLikes(), getMatches(), getConnections(), getRouletteState()]);
+          const [likes, found, requests, states, pins] = await Promise.all([getLikes(), getMatches(), getConnections(), getRouletteState(), getProfileReels()]);
           if (cancelled) return;
-          setRouletteStates(states || []); setLikedIds(likes); setMatches(found || []); setConnections(requests || []); setProfile(p);
+          setProfileReels(pins || []); setRouletteStates(states || []); setLikedIds(likes); setMatches(found || []); setConnections(requests || []); setProfile(p);
         } else setPage('profile');
       } catch (e) { if (!cancelled) setError(e.message); }
       finally { if (!cancelled) setLoading(false); }
@@ -60,7 +62,7 @@ export default function App() {
   function navigate(next) {
     if (!profile) return;
     setPage(next === 'home' ? 'reels' : next);
-    if (next === 'matches' || next === 'messages') run(refresh);
+    if (['matches', 'messages', 'profile'].includes(next)) run(refresh);
   }
   const go = useCallback(delta => setIndex(i => (i + delta + reels.length) % reels.length), []);
   useEffect(() => {
@@ -90,7 +92,12 @@ export default function App() {
   const reel = reels[index];
   const reelId = String(reel?.id);
   const liked = likedIds.includes(reelId);
-  const saved = savedIds.includes(reelId);
+  const ownReels = profileReels.filter(r => r.user_id === profile?.id);
+  const pinned = ownReels.some(r => r.reel_id === reelId);
+  const toggleProfileReel = (id, add) => run(async () => {
+    await setProfileReel(id, add);
+    setProfileReels(await getProfileReels() || []);
+  });
   const toggleLike = () => run(async () => {
     if (!reel) return;
     const next = !liked;
@@ -98,7 +105,6 @@ export default function App() {
     setLikedIds(old => next ? [...new Set([...old,reelId])] : old.filter(id => id !== reelId));
     await refresh();
   });
-  const toggleSave = () => setSavedIds(old => old.includes(reelId) ? old.filter(id => id !== reelId) : [...old,reelId]);
   const onSave = values => run(async () => { const p = await saveProfile(values); setProfile(p); setPage('reels'); await refresh(); });
   const onSpin = (target, action) => setRoulette({target, action});
   const doSpin = async () => {
@@ -106,25 +112,25 @@ export default function App() {
     try { await refresh(); } catch (e) { setError(e.message); }
     return result;
   };
-  const onDismiss = id => { if (window.confirm('Hide this profile and stop contact in both directions?')) run(async () => { await dismissMatch(id); await refresh(); }); };
+  const onDismiss = id => { if (window.confirm('stop contact with this person?')) run(async () => { await dismissMatch(id); await refresh(); }); };
   const onSendFromFeed = () => { setDraftReel(reelId); navigate('messages'); };
 
-  if (loading) return <div className="backend-loading">Loading ReelMate… 🫠</div>;
-  if (!profile && error && page !== 'profile') return <div className="backend-loading"><p role="alert">{error}</p><button className="backend-primary" onClick={() => window.location.reload()}>Try again</button></div>;
+  if (loading) return <div className="backend-loading">loading…</div>;
+  if (!profile && error && page !== 'profile') return <div className="backend-loading"><p role="alert">{error}</p><button className="backend-primary" onClick={() => window.location.reload()}>try again</button></div>;
   if (!profile) return <div className="backend-onboarding">{error && <div className="backend-error" role="alert">{error}</div>}<ProfilePage onSave={onSave} busy={busy} /></div>;
 
   return <div className="app backend-app">
     <Sidebar active={page} onNavigate={navigate} matchCount={matches.length} />
-    {error && <div className="backend-error backend-toast" role="alert">{error}<button onClick={() => setError('')} aria-label="Dismiss error">×</button></div>}
-    {page === 'profile' ? <main className="backend-page-wrap"><ProfilePage key={profile.id} profile={profile} onSave={onSave} busy={busy} /></main>
-    : page === 'matches' ? <main className="backend-page-wrap"><MatchesPage matches={matches} rouletteStates={rouletteStates} onSpin={onSpin} onDismiss={onDismiss} onScroll={() => navigate('reels')} busy={busy} reels={reels} /></main>
+    {error && <div className="backend-error backend-toast" role="alert">{error}<button onClick={() => setError('')} aria-label="dismiss error">×</button></div>}
+    {page === 'profile' ? <main className="backend-page-wrap"><ProfilePage key={profile.id} profile={profile} onSave={onSave} busy={busy} reels={reels} profileReels={ownReels} onRemove={id => toggleProfileReel(id, false)} onScroll={() => navigate('reels')} /></main>
+    : page === 'matches' ? <main className="backend-page-wrap"><MatchesPage matches={matches} rouletteStates={rouletteStates} onSpin={onSpin} onDismiss={onDismiss} onScroll={() => navigate('reels')} busy={busy} reels={reels} profileReels={profileReels} /></main>
     : page === 'messages' ? <main className="backend-page-wrap"><ConnectionsPage connections={connections} rouletteStates={rouletteStates} onSpin={onSpin} onDismiss={onDismiss} onRefresh={() => run(refresh)} busy={busy} profile={profile} reels={reels} draftReel={draftReel} clearDraft={() => setDraftReel(null)} /></main>
-    : <main className="stage backend-stage">
+    : <main className="stage backend-stage web-reels-stage">
       <VibeMatch match={matches[0]} likeCount={likedIds.length} onOpen={() => navigate('matches')} />
-      {reel ? <><ReelCard key={reelId} reel={reel} onDoubleClick={() => { if (!liked) toggleLike(); }} />
-      <ActionRail likes={Number(reel.likes || 0) + (liked ? 1 : 0)} liked={liked} saved={saved} onLike={toggleLike} onSave={toggleSave} onSend={onSendFromFeed} />
-      <Pager onPrev={() => go(-1)} onNext={() => go(1)} /></> : <p>No reels yet.</p>}
-      <button className="backend-mobile-match" onClick={() => navigate('matches')}>{matches.length ? `${matches.length} vibe match(es) ♡` : `${likedIds.length} reels liked`}</button>
+      {reel ? <><div className="web-reel-focus"><ReelCard key={reelId} reel={reel} onDoubleClick={() => { if (!liked) toggleLike(); }} />
+      <ActionRail likes={Number(reel.likes || 0) + (liked ? 1 : 0)} liked={liked} pinned={pinned} busy={busy} onLike={toggleLike} onSend={onSendFromFeed} onPin={() => toggleProfileReel(reelId, !pinned)} /></div>
+      <Pager onPrev={() => go(-1)} onNext={() => go(1)} /></> : <p>no reels yet</p>}
+      <button className="backend-mobile-match" onClick={() => navigate('matches')}>{matches.length ? `${matches.length} ${matches.length === 1 ? 'match' : 'matches'}` : `${likedIds.length} reels liked`}</button>
     </main>}
     {roulette && <RouletteModal key={`${roulette.target.id}-${roulette.action}`} action={roulette.action} target={roulette.target} onSpin={doSpin} onClose={() => setRoulette(null)} />}
   </div>;

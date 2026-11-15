@@ -1,0 +1,93 @@
+/* Desktop Instagram-inspired layout; existing ReelMate palette remains intact. */
+.backend-app .web-reels-stage {
+  --reel-height: min(calc(100dvh - 48px), 860px, calc((100vw - 350px) * 16 / 9));
+  --reel-width: calc(var(--reel-height) * 9 / 16);
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.backend-app .web-reels-stage::before { width: min(750px, 90%); opacity: .72; }
+.web-reels-stage .web-reel-focus {
+  display: grid;
+  grid-template-columns: 76px var(--reel-width) 76px;
+  align-items: end;
+  column-gap: 18px;
+  max-width: 100%;
+}
+.backend-app .web-reels-stage .reel {
+  grid-column: 2;
+  width: var(--reel-width);
+  height: var(--reel-height);
+  aspect-ratio: 9/16;
+  border-radius: 12px;
+  border: 1px solid rgba(74,36,52,.2);
+  box-shadow: 0 16px 40px rgba(74,36,52,.18);
+  background: #171418;
+  overflow: visible;
+}
+.web-reels-stage .reel .reel-media,
+.web-reels-stage .reel .reel-placeholder { border-radius: 11px; }
+.web-reels-stage .reel video.reel-media { object-fit: contain; background: #111; }
+.backend-app .web-reels-stage .reel-meta { border-radius: 0 0 11px 11px; }
+.backend-app .web-reels-stage .rail {
+  grid-column: 3;
+  position: static;
+  align-self: end;
+  justify-content: end;
+  gap: 18px;
+  padding-bottom: 14px;
+  width: 76px;
+}
+.web-reels-stage .rail button { display: flex; align-items: center; width: 100%; gap: 5px; text-align: center; font-size: 11px; font-weight: 700; }
+.web-reels-stage .rail button:disabled { opacity: .6; cursor: wait; }
+.web-reels-stage .rail .profile-pinned svg { background: var(--lime); stroke: var(--blue-deep); }
+.backend-app .web-reels-stage .pager { right: 22px; top: 50%; bottom: auto; transform: translateY(-50%); flex-direction: column; margin-top: 0; }
+.backend-app .web-reels-stage .backend-vibe {
+  right: calc(50% + var(--reel-width) / 2 + 30px);
+  top: 50%;
+  width: 168px;
+  margin: 0;
+  z-index: 1;
+}
+/* Put author/caption at the lower left like the desktop reference when there is room. */
+@media (min-width: 1320px) {
+  .backend-app .web-reels-stage .reel-meta {
+    right: calc(100% + 30px); left: auto; bottom: 0;
+    width: min(215px, calc((100vw - var(--reel-width) - 250px) / 2));
+    padding: 14px 16px; background: var(--card); color: var(--ink);
+    border-radius: 12px; border: 1px solid rgba(var(--pink-rgb), .35);
+  }
+  .web-reels-stage .reel-meta .caption { color: var(--ink); }
+  .web-reels-stage .reel-meta .author { overflow-wrap: anywhere; }
+}
+@media (max-width: 1120px) {
+  .backend-app .web-reels-stage { --reel-height: min(calc(100dvh - 78px), 860px, calc((100vw - 410px) * 16 / 9)); }
+  .backend-app .web-reels-stage .backend-vibe { display: none; }
+  .backend-app .web-reels-stage .backend-mobile-match { display: block; position: absolute; top: 5px; left: 50%; transform: translateX(-50%); padding: 7px 14px; border-radius: 30px; background: #fff; z-index: 2; white-space: nowrap; }
+}
+@media (max-width: 860px) {
+  .backend-app .web-reels-stage { --reel-height: min(calc(100dvh - 150px), 790px, calc((100vw - 86px) * 16 / 9)); }
+  .web-reels-stage .web-reel-focus { grid-template-columns: var(--reel-width) 58px; gap: 8px; }
+  .backend-app .web-reels-stage .reel { grid-column: 1; }
+  .backend-app .web-reels-stage .rail { grid-column: 2; width: 58px; gap: 12px; padding-bottom: 5px; }
+  .web-reels-stage .rail svg { padding: 8px; width: 21px; height: 21px; }
+  .web-reels-stage .rail button { font-size: 10px; }
+  .backend-app .web-reels-stage .pager { right: 8px; top: auto; bottom: 5px; transform: none; flex-direction: row; gap: 5px; }
+}
+/* Profile gallery + smaller preview on matched profiles. */
+.backend-page .profile-reels-section { margin-top: 12px; gap: 12px; }
+.profile-reels-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.profile-reels-heading .backend-kicker { margin-bottom: 5px; }
+.profile-reel-count { background: var(--lime); color: var(--ink); border-radius: 30px; padding: 6px 12px; font-weight: 800; }
+.profile-reels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.profile-reel-tile { border: 1px solid rgba(var(--pink-rgb),.35); background: #fff; padding: 7px; border-radius: 12px; display: grid; align-content: start; gap: 7px; min-width: 0; }
+.profile-reel-media { aspect-ratio: 9/14; display: grid; place-items: center; overflow: hidden; background: linear-gradient(145deg,var(--lime),#c6e6ff); border-radius: 8px; }
+.profile-reel-media video { width: 100%; height: 100%; object-fit: contain; background: #111; }
+.profile-reel-media span { font-size: 40px; }
+.profile-reel-tile p { font-size: 12px; overflow-wrap: anywhere; }
+.profile-reel-tile .profile-reel-remove { font-size: 10px; padding: 7px 8px; width: 100%; }
+.match-profile-reels h3 { font-size: 13px; margin: 0 0 8px; }
+.match-profile-reels .profile-reels-grid { grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); }
+.match-profile-reels .profile-reel-tile p { font-size: 10px; }

@@ -12,7 +12,7 @@ export default function ReelCard({ reel, onDoubleClick }) {
         <div className="reel-meta">
           <div className="author">
             <span className="avatar-sm">{reel.avatar}</span>
-            <span>({reel.handle}, {reel.totalLikes} Likes)</span>
+            <span>({reel.handle}, {reel.totalLikes} likes)</span>
           </div>
           <p className="caption">{reel.caption}</p>
         </div>

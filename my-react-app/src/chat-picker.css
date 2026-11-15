@@ -1,0 +1,24 @@
+/* Compact reel-only chat composer. Uses the existing ReelMate theme. */
+.backend-card.reel-chat { max-width: 760px; min-width: 0; justify-self: center; gap: 14px; }
+.reel-chat .chat-disabled { padding: 9px 12px; font-size: 13px; }
+.reel-chat .chat-disabled small { margin-top: 3px; }
+.rm-chat-picker { display: grid; gap: 10px; min-width: 0; }
+.rm-picker-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.rm-picker-heading h3 { font-size: 14px; font-weight: 700; color: var(--ink,#4a2434); }
+.rm-picker-heading > span { font-size: 11px; color: var(--ink-soft,#8a6a76); }
+.rm-picker-strip { display: flex; gap: 10px; overflow-x: auto; min-width: 0; padding: 4px 4px 8px; scrollbar-width: thin; scrollbar-color: #dba9ba transparent; scroll-snap-type: x proximity; }
+.rm-picker-tile { flex: 0 0 clamp(90px, 16vw, 112px); display: grid; align-content: start; gap: 5px; min-width: 0; padding: 5px; border: 2px solid transparent; border-radius: 12px; background: rgba(255,255,255,.55); color: var(--ink,#4a2434); text-align: left; scroll-snap-align: start; transition: border-color .15s, background .15s; }
+.rm-picker-tile:not(:disabled):hover { border-color: var(--pink,#ec6791); }
+.rm-picker-tile:focus-visible { outline: 2px solid var(--blue-deep,#5f90ad); outline-offset: 1px; }
+.rm-picker-tile.is-selected { border-color: var(--blue-deep,#5f90ad); background: #eef3f8; box-shadow: 0 0 0 2px rgba(123,169,196,.22); }
+.rm-picker-tile:disabled { cursor: default; }
+.rm-picker-media { display: grid; place-items: center; position: relative; aspect-ratio: 9/13; border-radius: 7px; overflow: hidden; background: #eaf1d6; }
+.rm-picker-media video { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; background: #222; }
+.rm-picker-placeholder { font-size: 29px; }
+.rm-picker-check { display: grid; place-items: center; position: absolute; top: 5px; right: 5px; width: 21px; height: 21px; border-radius: 50%; background: var(--blue-deep,#5f90ad); color: white; font-size: 13px; font-weight: 800; box-shadow: 0 1px 4px #4a243444; }
+.rm-picker-caption { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; font-size: 11px; line-height: 1.25; overflow-wrap: anywhere; min-height: 27px; }
+.rm-picker-footer { display: flex; align-items: center; gap: 12px; justify-content: space-between; border-top: 1px solid #eacfd9; padding-top: 11px; }
+.rm-picker-selection { min-width: 0; flex: 1; color: var(--ink-soft,#8a6a76); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reel-chat .rm-picker-send { display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: 0 0 auto; min-height: 40px; padding: 9px 14px; border-radius: 8px; text-transform: none; }
+@media (max-width: 480px) { .rm-picker-tile { flex-basis: 89px; } .rm-picker-strip { gap: 7px; } .reel-chat .chat-history { min-height: 110px; } }
+@media (prefers-reduced-motion: reduce) { .rm-picker-tile { transition: none; } }

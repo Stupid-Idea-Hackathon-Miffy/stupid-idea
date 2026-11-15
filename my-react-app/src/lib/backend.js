@@ -62,3 +62,12 @@ export const dismissMatch = targetId => rpc('dismiss_match', {p_target: targetId
 export const sendReel = (targetId,reelId) => rpc('send_reel', {p_target:targetId,p_reel:String(reelId)});
 export const getReelMessages = targetId => rpc('get_reel_messages', {p_target:targetId});
 export const spinAdd = targetId => rpc('spin_add', {p_target:targetId});
+
+// Profile reels are independent of matching likes and private bookmarks.
+export const getProfileReels = () => rpc('get_visible_profile_reels');
+export async function setProfileReel(reelId, add) {
+  const { id } = await getUser();
+  const query = client().from('profile_reels');
+  if (add) checked(await query.upsert({ user_id: id, reel_id: String(reelId) }, { onConflict: 'user_id,reel_id', ignoreDuplicates: true }));
+  else checked(await query.delete().eq('user_id', id).eq('reel_id', String(reelId)));
+}

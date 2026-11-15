@@ -31,7 +31,7 @@ export default function Decor() {
           <use href="#rl-star" x="-26" y="-26" width="52" height="52" />
         </svg>
       ))}
-      <span className="decor-tagline">Find love doomscrolling</span>
+      <span className="decor-tagline">find love doomscrolling</span>
     </div>
   );
 }
