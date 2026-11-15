@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { getReelMessages, sendReel } from '../lib/backend.js';
 import '../chat-picker.css';
+import '../inbox.css';
 import Avatar, { avatarOptions, normalizeAvatar } from './Avatar.jsx';
 
 export function ProfilePage({ profile, onSave, busy, reels = [], profileReels = [], onRemove, onScroll }) {
@@ -12,13 +13,13 @@ export function ProfilePage({ profile, onSave, busy, reels = [], profileReels = 
   return <section className="backend-page profile-page">
     
     <h1>{profile ? 'ur profile' : 'make ur profile'}</h1>
-    <p className="backend-muted">18+ demo • use fake details pls</p>
+    <p className="backend-muted">tell us a lil abt urself</p>
     <form onSubmit={e => { e.preventDefault(); onSave({ name, age, bio, avatar, interests: interests.split(',').map(x => x.trim()).filter(Boolean).slice(0,12) }); }}>
       <div className="backend-avatars" aria-label="pick an avatar">
         {avatarOptions.map((a, i) => <button type="button" key={a} aria-label={`profile picture ${i + 1}`} aria-pressed={a === avatar} className={a === avatar ? 'chosen' : ''} onClick={() => setAvatar(a)}><Avatar value={a} /></button>)}
       </div>
       <label>display name<input required maxLength={60} value={name} onChange={e => setName(e.target.value)} placeholder="ur name" /></label>
-      <label>age<input required type="number" min={18} max={99} value={age} onChange={e => setAge(e.target.value)} placeholder="18+" /></label>
+      <label>age <small>18 and up</small><input required type="number" min={18} max={99} value={age} onChange={e => setAge(e.target.value)} placeholder="ur age" /></label>
       <label>bio<textarea maxLength={300} value={bio} onChange={e => setBio(e.target.value)} placeholder="tell us abt urself" /></label>
       <label>interests (separate with commas)<input maxLength={250} value={interests} onChange={e => setInterests(e.target.value)} placeholder="cats, gaming, memes" /></label>
       <button className="backend-primary" disabled={busy || !name.trim()} type="submit">{busy ? 'saving…' : profile ? 'save profile' : 'start scrolling →'}</button>
@@ -70,7 +71,7 @@ export function MatchesPage({matches,rouletteStates,onSpin,onDismiss,onScroll,bu
         const shared = m.shared_reels || [];
         const pinned = profileReels.filter(r => r.user_id === m.id);
         return <article className="backend-card rm-match-card" key={m.id}>
-          <div className="rm-match-identity"><Avatar value={m.avatar} className="backend-avatar" /><div className="rm-match-name"><h2>{m.name}, {m.age}</h2>{m.is_demo && <small className="backend-demo">demo profile</small>}</div><div className="rm-match-score"><strong>{m.score}%</strong><span>match</span></div></div>
+          <div className="rm-match-identity"><Avatar value={m.avatar} className="backend-avatar" /><div className="rm-match-name"><h2>{m.name}, {m.age}</h2>{m.is_demo && <small className="backend-demo">fictional</small>}</div><div className="rm-match-score"><strong>{m.score}%</strong><span>match</span></div></div>
           <div className="rm-match-meter" role="meter" aria-label="compatibility" aria-valuemin={0} aria-valuemax={100} aria-valuenow={m.score}><span style={{width:`${Math.max(0,Math.min(100,m.score))}%`}} /></div>
           {m.bio && <p className="rm-match-bio">{m.bio}</p>}
           {!!m.interests?.length && <div className="backend-tags rm-match-tags">{m.interests.map((i,n) => <span key={n}>{i}</span>)}</div>}
@@ -113,9 +114,15 @@ function ReelPicker({reels, selected, onSelect, sending, onSend}) {
     </div>
   </section>;
 }
-function ReelChat({connection,profile,reels,draftReel,clearDraft}) {
+function ReelChat({connection,profile,reels,draftReel,clearDraft,actions,onBack}) {
   const [messages,setMessages]=useState([]),[selected,setSelected]=useState(draftReel||''),[sending,setSending]=useState(false),[error,setError]=useState(''),[loaded,setLoaded]=useState(false);
   const sendLock=useRef(false),requestVersion=useRef(0),active=useRef(true);
+  const historyRef=useRef(null), stickToBottom=useRef(true);
+  const lastId=messages.at(-1)?.id;
+  useEffect(()=>{
+    const history=historyRef.current;
+    if(history && stickToBottom.current) history.scrollTop=history.scrollHeight;
+  },[lastId,loaded]);
   useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
   useEffect(()=>{
     let cancelled=false;
@@ -125,26 +132,54 @@ function ReelChat({connection,profile,reels,draftReel,clearDraft}) {
   async function send(){
     if(sendLock.current || !reels.some(r=>String(r.id)===selected))return;
     sendLock.current=true;setSending(true);setError('');
-    try{await sendReel(connection.other_id,selected);if(!active.current)return;setSelected('');clearDraft();const version=++requestVersion.current;const rows=await getReelMessages(connection.other_id);if(active.current && version===requestVersion.current){setMessages(rows||[]);setLoaded(true);}}
+    try{await sendReel(connection.other_id,selected);if(!active.current)return;setSelected('');clearDraft();stickToBottom.current=true;const version=++requestVersion.current;const rows=await getReelMessages(connection.other_id);if(active.current && version===requestVersion.current){setMessages(rows||[]);setLoaded(true);}}
     catch(e){if(active.current)setError(e.message);}finally{sendLock.current=false;if(active.current)setSending(false);}
   }
-  return <div className="backend-card reel-chat">
-    <div className="avatar-chat-heading"><Avatar value={connection.avatar} className="backend-avatar" /><div><h2>{connection.name}</h2>{connection.is_demo && <small className="backend-demo">demo profile · auto replies</small>}</div></div>
-    <div className="chat-history" aria-live="polite">{!loaded ? <p className="backend-muted">loading reels…</p>:!messages.length?<p className="backend-muted">send them a reel lol</p>:messages.map(m=><div className={`chat-bubble ${m.sender_id===profile.id?'mine':'theirs'}`} key={m.id}><MiniReel reel={reels.find(r=>String(r.id)===m.reel_id)}/><small>{new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>)}</div>
-    <div className="chat-disabled">🔒 <s>type a message...</s><small>no texting, reels only</small></div>
-    {error && <p className="backend-error" role="alert">{error}</p>}
-    <ReelPicker reels={reels} selected={selected} onSelect={setSelected} sending={sending} onSend={send}/>
+  return <div className="reel-chat rl-conversation">
+    <header className="rl-chat-header">
+      <button type="button" className="rl-chat-back" onClick={onBack} aria-label="back to messages">←</button>
+      <Avatar value={connection.avatar} className="rl-chat-avatar" />
+      <div className="rl-chat-identity"><h2>{connection.name}</h2><small>{connection.is_demo ? 'fictional · auto replies' : 'connected'}</small></div>
+      <div className="rl-chat-actions">{actions}</div>
+    </header>
+    <div className="chat-history" ref={historyRef} onScroll={e=>{const el=e.currentTarget;stickToBottom.current=el.scrollHeight-el.scrollTop-el.clientHeight<100;}} aria-live="polite">
+      {!loaded ? <p className="rl-chat-empty">loading reels…</p> : !messages.length ? <div className="rl-chat-empty"><Avatar value={connection.avatar} className="rl-empty-avatar" /><strong>{connection.name}</strong><p>send them a reel lol</p></div> : messages.map(m=><div className={`chat-bubble ${m.sender_id===profile.id?'mine':'theirs'}`} key={m.id}><MiniReel reel={reels.find(r=>String(r.id)===m.reel_id)}/><small>{new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div>)}
+    </div>
+    <div className="rl-composer">
+      <div className="rl-chat-notice"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><s>type a message...</s><span>no texting, reels only</span></div>
+      {error && <p className="backend-error" role="alert">{error}</p>}
+      <ReelPicker reels={reels} selected={selected} onSelect={setSelected} sending={sending} onSend={send}/>
+    </div>
   </div>;
 }
 export function ConnectionsPage({connections,rouletteStates,onSpin,onDismiss,onRefresh,busy,profile,reels,draftReel,clearDraft}) {
   const [selected,setSelected]=useState(null),now=useClock();
   const connection=connections.find(c=>c.other_id===selected && c.status==='accepted');
-  return <section className="backend-page"><h1>messages</h1><p className="backend-muted">reels only</p>
-    {draftReel && !connection && <p className="backend-card">who r u sending this to?<button className="backend-secondary" onClick={clearDraft}>cancel</button></p>}
-    {connection ? <><button className="backend-secondary" onClick={()=>setSelected(null)}>← back</button><ReelChat key={connection.other_id} connection={connection} profile={profile} reels={reels} draftReel={draftReel} clearDraft={clearDraft}/><MatchActions target={{...connection,id:connection.other_id}} status="accepted" rouletteStates={rouletteStates} onSpin={onSpin} onDismiss={onDismiss} busy={busy} now={now}/></> : <>
-      <button className="backend-secondary" onClick={onRefresh} disabled={busy}>refresh</button>
-      {!connections.length && <div className="backend-card">no one here yet, go spin</div>}
-      {connections.map(c=><article className="backend-card" key={c.id}><div className="backend-request"><Avatar value={c.avatar} className="backend-avatar" /><div><h2>{c.name}{c.is_demo && <small className="backend-demo">demo profile</small>}</h2><p className="backend-muted">{c.status==='pending'?(c.incoming?'incoming request':'request sent'):c.status}</p></div></div><MatchActions target={{...c,id:c.other_id}} status={c.status} incoming={c.incoming} rouletteStates={rouletteStates} onSpin={onSpin} onDismiss={onDismiss} busy={busy} now={now} onOpen={()=>setSelected(c.other_id)}/></article>)}
-    </>}
+  const accepted=connections.filter(c=>c.status==='accepted');
+  const requests=connections.filter(c=>c.status==='pending');
+  const target=connection && {...connection,id:connection.other_id};
+  const rejectedUntil=target && rouletteStates.find(s=>s.target_id===target.id)?.locked_until;
+  const rejectLock=timeLeft(rejectedUntil,now);
+  return <section className="backend-page rl-inbox-page">
+    <div className="rl-inbox-title"><h1>messages</h1><span>{accepted.length} {accepted.length===1?'connection':'connections'}</span></div>
+    <div className={`rl-inbox-shell${connection?' rl-has-chat':''}`}>
+      <aside className="rl-inbox-list" aria-label="conversations">
+        <header className="rl-inbox-list-header"><h2>inbox</h2><button type="button" className="rl-refresh" disabled={busy} onClick={onRefresh} aria-label="refresh connections" title="refresh"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.5 8A7 7 0 0 1 17 5.5L20 9M4 15l3 3.5A7 7 0 0 0 18.5 16"/></svg></button></header>
+        {draftReel && !connection && <div className="rl-draft-notice">who r u sending this to?<button className="rl-text-button" onClick={clearDraft}>cancel</button></div>}
+        <div className="rl-inbox-scroll">
+          {!accepted.length && <p className="rl-inbox-empty">no chats yet</p>}
+          {accepted.map(c=><button type="button" className={`rl-inbox-person${connection?.other_id===c.other_id?' is-active':''}`} key={c.id} onClick={()=>setSelected(c.other_id)} aria-pressed={connection?.other_id===c.other_id}>
+            <Avatar value={c.avatar} className="rl-inbox-avatar"/><span className="rl-person-copy"><strong>{c.name}</strong><small>{c.is_demo?'fictional':'connected'}</small></span><span className="rl-person-arrow" aria-hidden="true">›</span>
+          </button>)}
+          {!!requests.length && <section className="rl-inbox-requests"><h3>requests</h3>{requests.map(c=><article className="rl-request" key={c.id}><div className="rl-request-person"><Avatar value={c.avatar} className="rl-inbox-avatar"/><div className="rl-person-copy"><strong>{c.name}</strong><small>{c.incoming?'incoming request':'request sent'}</small></div></div><MatchActions target={{...c,id:c.other_id}} status={c.status} incoming={c.incoming} rouletteStates={rouletteStates} onSpin={onSpin} onDismiss={onDismiss} busy={busy} now={now}/></article>)}</section>}
+        </div>
+      </aside>
+      <main className="rl-inbox-main" aria-label="chat">
+        {connection ? <ReelChat key={connection.other_id} connection={connection} profile={profile} reels={reels} draftReel={draftReel} clearDraft={clearDraft} onBack={()=>setSelected(null)} actions={<>
+          <button type="button" className="backend-secondary rl-reject-button" disabled={busy||!!rejectLock} onClick={()=>onSpin(target,'reject')}>{rejectLock?`reject locked · ${rejectLock}`:'spin to reject'}</button>
+          {!connection.is_demo && <button type="button" className="rm-stop-contact rl-text-button" disabled={busy} onClick={()=>onDismiss(target.id)}>stop contact</button>}
+        </>}/> : <div className="rl-no-chat"><svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 3 3 10l7 3 3 8 8-18zM10 13 21 3"/></svg><h2>{accepted.length?'pick a chat':'no connections yet'}</h2><p>{accepted.length?'send ur match a reel':'go spin to add someone'}</p></div>}
+      </main>
+    </div>
   </section>;
 }
